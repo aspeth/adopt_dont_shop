@@ -155,4 +155,45 @@ RSpec.describe 'the admin application show page' do
     # expect(current_path).to eq("/admin/applications/#{application.id}")
     expect(page).to have_content("Status: Rejected")
   end
+ 
+  it 'remove approval button' do
+    shelter = Shelter.create!(name: 'Save The Animals', city: 'Denver', rank: 4, foster_program: true)
+    pet1 = Pet.create!(name: 'Joey', age: 2, breed: 'Poodle', adoptable: true, shelter_id: shelter.id)
+    pet2 = Pet.create!(name: 'Parker', age: 2, breed: 'Poodle', adoptable: true, shelter_id: shelter.id)
+    pet3 = Pet.create!(name: 'Amanda', age: 2, breed: 'Poodle', adoptable: true, shelter_id: shelter.id)
+    application1 = Application.create!(name: 'Andrew',
+      street_address: '112 Greenbrook',
+      city: 'Denver',
+      state: 'CO',
+      zipcode: '80207',
+      description: 'Happy, friendly, cool',
+      status: 'Pending',
+    )
+    application2 = Application.create!(name: 'Antonio',
+      street_address: '112 Greenbrook',
+      city: 'Denver',
+      state: 'CO',
+      zipcode: '80207',
+      description: 'Happy, friendly, cool',
+      status: 'Approved',
+    )
+
+    app_pet_1 = ApplicationPet.create!(application_id: application1.id, pet_id: pet1.id)
+    app_pet_2 = ApplicationPet.create!(application_id: application1.id, pet_id: pet2.id)
+    app_pet_3 = ApplicationPet.create!(application_id: application2.id, pet_id: pet1.id)
+    app_pet_4 = ApplicationPet.create!(application_id: application2.id, pet_id: pet3.id)
+
+    visit "/admin/applications/#{application1.id}"
+
+    expect(page).to_not have_button("Approve #{pet1.name}")
+    expect(page).to have_button("Reject #{pet1.name}")
+    expect(page).to have_content("#{pet1.name} has been approved for adoption")
+  end
 end
+# As a visitor
+# When a pet has an "Approved" application on them
+# And when the pet has a "Pending" application on them
+# And I visit the admin application show page for the pending application
+# Then next to the pet I do not see a button to approve them
+# And instead I see a message that this pet has been approved for adoption
+# And I do see a button to reject them

@@ -10,8 +10,18 @@
 <% @app_pet.each do |app| %>
   <% if app[:pet_status] == nil %>
     <%= app.pet.name %>
-    <%= button_to "Approve #{app.pet.name}", "/admin/applications/#{@application.id}", method: :patch, params: {app_id: app.id, status: 'Approve'} %>
-    <%= button_to "Reject #{app.pet.name}", "/admin/applications/#{@application.id}", method: :patch, params: {app_id: app.id, status: 'Reject'}%>
+    <% statuses = [] %>
+
+    <% app.pet.applications.each do |application| %>
+      <% statuses << application[:status] %>
+    <% end %>
+    
+    <% if statuses.include?("Approved") %>
+      <%= "#{app.pet.name} has been approved for adoption" %>
+    <% else %>
+      <%= button_to "Approve #{app.pet.name}", "/admin/applications/#{@application.id}", method: :patch, params: {app_id: app.id, status: 'Approve'} %>
+    <% end %>
+      <%= button_to "Reject #{app.pet.name}", "/admin/applications/#{@application.id}", method: :patch, params: {app_id: app.id, status: 'Reject'}%>
   <% end %>
 <% end %>
 
